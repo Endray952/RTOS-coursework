@@ -6,30 +6,39 @@
 #include "sys.h"
 #include "rtos_api.h"
 
-void ActivateTask(TTaskCall entry,int priority,char* name)
+void ActivateTask(TTaskCall entry, int priority, char* name)
 {
-	int task,occupy;
+	/*«апоминанем сюда таску до вызова планировщика*/
+	int task;
+	/*—юда записываем индекс бошки массива TaskQueue,
+	чтобы туда сунуть новую таску*/
+	int	occupy;
 
-	printf("ActivateTask %s\n",name);
+	printf("ActivateTask %s\n", name);
 
-	task=RunningTask;
+	task = RunningTask;
 
-	occupy=FreeTask;
-	FreeTask=TaskQueue[occupy].ref;
+	/*ѕо индексу FreeTask ставим в TaskQueue новую таску,*/
+	occupy = FreeTask;
+	/* а в FreeTask устанавливаем новый индекс головы списка свободных элементов*/
+	FreeTask = TaskQueue[occupy].ref;
 
-	TaskQueue[occupy].priority=priority;
-	TaskQueue[occupy].ceiling_priority=priority;
-	TaskQueue[occupy].name=name;
-	TaskQueue[occupy].entry=entry;
-	
-	Schedule(occupy,INSERT_TO_TAIL);
-	
-	if(task!=RunningTask)
+	TaskQueue[occupy].priority = priority;
+	TaskQueue[occupy].ceiling_priority = priority;
+	TaskQueue[occupy].name = name;
+	TaskQueue[occupy].entry = entry;
+
+	Schedule(occupy, INSERT_TO_TAIL);
+
+	/* ¬ызов диспетчера может не понадобитьс€,
+	если текущую таску (task) не сместила нова€ таска
+	(функци€ Schedle может поставить новую таску в RunningTask)*/
+	if (task != RunningTask)
 	{
 		Dispatch(task);
 	}
 
-	printf("End of ActivateTask %s\n",name);
+	printf("End of ActivateTask %s\n", name);
 
 }
 
@@ -37,66 +46,73 @@ void TerminateTask(void)
 {
 	int task;
 
-	task=RunningTask;
+	task = RunningTask;
 
-	printf("TerminateTask %s\n",TaskQueue[task].name);
+	printf("TerminateTask %s\n", TaskQueue[task].name);
 
-	RunningTask=TaskQueue[task].ref;
+	/*Ѕерем в качестве текущей таски первую из очереди*/
+	RunningTask = TaskQueue[task].ref;
 
-	TaskQueue[task].ref=FreeTask;
+	TaskQueue[task].ref = FreeTask;
 
-	FreeTask=task;
+	FreeTask = task;
 
-	printf("End of TerminateTask %s\n",TaskQueue[task].name);
+	printf("End of TerminateTask %s\n", TaskQueue[task].name);
 
 }
 
-void Schedule(int task,int mode)
+void Schedule(int task, int mode)
 {
-	int cur,prev;
+	int cur, prev;
+	/* Ќаивысший приоритет вход€щей таски (task)*/
 	int priority;
 
-	printf("Schedule %s\n",TaskQueue[task].name);
+	printf("Schedule %s\n", TaskQueue[task].name);
 
-	cur=RunningTask;
-	prev=-1;
+	cur = RunningTask;
+	prev = -1;
 
-	priority=TaskQueue[task].ceiling_priority;
+	priority = TaskQueue[task].ceiling_priority;
 
-	while(cur!=-1 && TaskQueue[cur].ceiling_priority > priority)
+	/* “ут происходит спуск по списку тасок
+	≈сли тасок вообще нет (cur != -1) или мы нашли таску,
+	приоритет которой меньше приоритета новой, то выходим, запомнив в cur первую таску,
+	приорит которой <= новой*/
+	while (cur != -1 && TaskQueue[cur].ceiling_priority > priority)
 	{
-		prev=cur;
-		cur=TaskQueue[cur].ref;
+		prev = cur;
+		cur = TaskQueue[cur].ref;
 	}
 
-	if(mode==INSERT_TO_TAIL)
+	if (mode == INSERT_TO_TAIL)
 	{
-		while(cur!=-1 && TaskQueue[cur].ceiling_priority == priority)
+		while (cur != -1 && TaskQueue[cur].ceiling_priority == priority)
 		{
-			prev=cur;
-			cur=TaskQueue[cur].ref;
+			prev = cur;
+			cur = TaskQueue[cur].ref;
 		}
 	}
 
-	TaskQueue[task].ref=cur;
+	TaskQueue[task].ref = cur;
 
-	if(prev==-1) RunningTask=task;
-	else TaskQueue[prev].ref=task;
+	// prev == -1 значит нова€ таска сама€ приоритетна€
+	if (prev == -1) RunningTask = task;
+	else TaskQueue[prev].ref = task;
 
-	printf("End of Schedule %s\n",TaskQueue[task].name);
+	printf("End of Schedule %s\n", TaskQueue[task].name);
 
 }
 
 void Dispatch(int task)
 {
+	// task - вытесненна€ таска
 	printf("Dispatch\n");
 
 	do
 	{
 		TaskQueue[RunningTask].entry();
-	}
-	while(RunningTask!=task);
-
+	} while (RunningTask != task);
+	// вернулись к выполнению вытесненной таски
 	printf("End of Dispatch\n");
 
 }
