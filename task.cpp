@@ -5,6 +5,7 @@
 
 #include "sys.h"
 #include "rtos_api.h"
+#include <stdlib.h>
 
 void ActivateTask(TTaskCall entry, int priority, char* name)
 {
@@ -100,7 +101,6 @@ void Schedule(int task, int mode)
 	else TaskQueue[prev].ref = task;
 
 	printf("End of Schedule %s\n", TaskQueue[task].name);
-
 }
 
 void Dispatch(int task)
@@ -115,4 +115,34 @@ void Dispatch(int task)
 	// вернулись к выполнению вытесненной таски
 	printf("End of Dispatch\n");
 
+}
+
+void EventSystemDispatch(int task)
+{
+	printf("Event dispatch\n");
+
+	int nextTask = RunningTask;
+	while ((nextTask != -1) && (TaskQueue[nextTask].task_state == TASK_WAITING))
+	{
+		nextTask = TaskQueue[nextTask].ref;
+	}
+
+	if (nextTask == -1)
+	{
+		printf("Error: all task in waiting state");
+		return;
+	}
+
+	while (TaskQueue[task].task_state == TASK_WAITING)
+	{
+		if (nextTask != -1)
+		{
+			TaskQueue[nextTask].entry();
+		}
+		else
+		{
+			printf("Error: there is no running tasks, while task %d is waiting", task);
+			exit(1);
+		}
+	}
 }

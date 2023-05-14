@@ -58,4 +58,4 @@ extern int FreeResource;
 void Schedule(int task, int mode);
 
 void Dispatch(int task);
-
+void EventSystemDispatch(int task);
