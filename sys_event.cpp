@@ -42,7 +42,7 @@ void WaitSysEvent(TEventMask mask)
     {
         TaskQueue[RunningTask].task_state = TASK_WAITING;
         //printf("before dispatch\n");
-        Dispatch(RunningTask);
+        EventSystemDispatch(RunningTask);
     }
     printf("End of WaitSysEvent %i\n", mask);
 }

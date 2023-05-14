@@ -114,7 +114,6 @@ void Dispatch(int task)
 	} while (RunningTask != task);
 	// вернулись к выполнению вытесненной таски
 	printf("End of Dispatch\n");
-
 }
 
 void EventSystemDispatch(int task)
@@ -133,11 +132,19 @@ void EventSystemDispatch(int task)
 		return;
 	}
 
+	int tmp = nextTask;
 	while (TaskQueue[task].task_state == TASK_WAITING)
 	{
 		if (nextTask != -1)
 		{
-			TaskQueue[nextTask].entry();
+			if (TaskQueue[nextTask].task_state == TASK_WAITING)
+			{
+				nextTask = TaskQueue[nextTask].ref;
+				continue;
+			}
+			tmp = nextTask;
+			nextTask = TaskQueue[tmp].ref;
+			TaskQueue[tmp].entry();
 		}
 		else
 		{
