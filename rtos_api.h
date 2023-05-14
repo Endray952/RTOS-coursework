@@ -22,8 +22,7 @@ void ShutdownOS();
 
 
 /* Resource */
-#define DeclareResource(ResID,priority)\
-	enum {ResID=priority}
+#define DeclareResource(ResID,priority) enum {ResID=priority}
 
 void GetResource(int priority, char* name);
 void ReleaseResource(int priority, char* name);
@@ -31,8 +30,7 @@ void ReleaseResource(int priority, char* name);
 
 /* System event */
 typedef unsigned int TEventMask;
-#define DeclareSysEvent(ID) \
-	const int Event_##ID = (ID)*(ID);
+#define DeclareSysEvent(Id) TEventMask Event_##Id = (Id)*(Id);
 
 void SetSysEvent(TEventMask mask);
 void GetSysEvent(TEventMask* mask);

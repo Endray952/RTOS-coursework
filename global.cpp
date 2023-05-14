@@ -14,3 +14,5 @@ int RunningTask;
 int FreeTask;
 
 int FreeResource;
+
+TEventMask WorkingEvents;

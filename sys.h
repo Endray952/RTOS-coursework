@@ -4,6 +4,18 @@
 #pragma once
 
 #include "defs.h"
+#include "rtos_api.h"
+
+/* System Event */
+enum TTaskState {
+	TASK_RUNNING,
+	TASK_READY,
+	TASK_SUSPENDED,
+	TASK_WAITING
+};
+
+extern TEventMask WorkingEvents; //сработавшие события (не мой комментарий)
+
 
 #define INSERT_TO_TAIL 1
 #define INSERT_TO_HEAD 0
@@ -15,7 +27,8 @@ typedef struct Type_Task
 	int ceiling_priority;
 	void (*entry)(void);
 	char* name;
-
+	TTaskState task_state;
+	TEventMask waiting_events;
 } TTask;
 
 typedef struct Type_resource
@@ -45,3 +58,4 @@ extern int FreeResource;
 void Schedule(int task, int mode);
 
 void Dispatch(int task);
+

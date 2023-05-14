@@ -8,27 +8,27 @@
 #include "rtos_api.h"
 
 
-DeclareTask(Task1,3);
-DeclareTask(Task2,2);
-DeclareTask(Task3,1);
+DeclareTask(Task1, 3);
+DeclareTask(Task2, 2);
+DeclareTask(Task3, 1);
 
-DeclareTask(Task6,1);
-DeclareTask(Task7,3);
-DeclareTask(Task8,5);
-DeclareTask(Task9,7);
-DeclareTask(Task10,2);
-DeclareTask(Task11,4);
+DeclareTask(Task6, 1);
+DeclareTask(Task7, 3);
+DeclareTask(Task8, 5);
+DeclareTask(Task9, 7);
+DeclareTask(Task10, 2);
+DeclareTask(Task11, 4);
 
-DeclareResource(Res1,5);
-DeclareResource(Res2,5);
-DeclareResource(Res3,5);
-DeclareResource(Res4,2);
+DeclareResource(Res1, 5);
+DeclareResource(Res2, 5);
+DeclareResource(Res3, 5);
+DeclareResource(Res4, 2);
 
 int main(void)
 {
 	printf("Hello!\n");
 	char name[] = "Task1";
-	StartOS(Task1,Task1prior,name);
+	StartOS(Task1, Task1prior, name);
 	//char name[] = "Task6";
 		//StartOS(Task6, Task6prior, name);
 
@@ -42,7 +42,7 @@ TASK(Task1)
 {
 	printf("Start Task1\n");
 	char name[] = "Task2";
-	ActivateTask(Task2,Task2prior, name);
+	ActivateTask(Task2, Task2prior, name);
 
 	printf("End Task1\n");
 
@@ -53,7 +53,7 @@ TASK(Task2)
 {
 	printf("Start Task2\n");
 	char name[] = "Task3";
-	ActivateTask(Task3,Task3prior, name);
+	ActivateTask(Task3, Task3prior, name);
 
 	printf("End Task2\n");
 
@@ -64,8 +64,8 @@ TASK(Task3)
 {
 	printf("Start Task3\n");
 
-	char name[] = "Task6";
-	ActivateTask(Task6, Task6prior, name);
+	//char name[] = "Task6";
+	//ActivateTask(Task6, Task6prior, name);
 
 	printf("End Task3\n");
 
@@ -78,7 +78,7 @@ TASK(Task6)
 {
 	printf("Start Task6\n");
 	/* name, который передаем в GetResource и ReleaseResource,
-	должен быть один и тот же массив (не строка, а именно массив), 
+	должен быть один и тот же массив (не строка, а именно массив),
 	так как в ReleaseResource идет сравнение по ссылке на name*/
 	char name1[] = "Res4";
 	GetResource(Res4, name1);
