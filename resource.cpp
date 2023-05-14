@@ -30,7 +30,8 @@ void GetResource(int priority, char* name)
 
 void ReleaseResource(int priority, char* name)
 {
-	// „ем то надо инициализировать
+	//priority - приоритет освобождаемого ресурса
+
 	int ResourceIndex;
 
 	printf("ReleaseResource %s\n", name);
@@ -91,7 +92,7 @@ void ReleaseResource(int priority, char* name)
 	else
 	{
 		ResourceIndex = 0;
-
+		/* Ќаходим индекс текущего ресурса в массиве ресурсов*/
 		while (ResourceQueue[ResourceIndex].task != RunningTask ||
 			ResourceQueue[ResourceIndex].priority != priority ||
 			ResourceQueue[ResourceIndex].name != name)
@@ -99,6 +100,7 @@ void ReleaseResource(int priority, char* name)
 			ResourceIndex++;
 		}
 
+		/* ƒобавл€ем элемент массива, занимаемый ресурсом, в список свободных ресурсов*/
 		ResourceQueue[ResourceIndex].priority = FreeResource;
 		ResourceQueue[ResourceIndex].task = -1;
 		FreeResource = ResourceIndex;
