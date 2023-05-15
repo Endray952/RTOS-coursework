@@ -36,8 +36,16 @@ void ShutdownOS();
 /* Resource */
 #define DeclareResource(ResID, priority) enum {ResID=priority}
 
-void GetResource(int priority, char* name);
-void ReleaseResource(int priority, char* name);
+#define GetResource(priority, name) \
+	_GetResource(priority, name); \
+	yield();
+
+#define ReleaseResource(priority, name) \
+	_ReleaseResource(priority, name); \
+	yield();
+
+void _GetResource(int priority, char* name);
+void _ReleaseResource(int priority, char* name);
 
 
 /* System event */

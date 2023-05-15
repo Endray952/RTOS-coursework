@@ -11,6 +11,8 @@ TResource ResourceQueue[MAX_RES];
 
 int MostPriorityTaskRef;
 
+int RunningTaskRef;
+
 int FreeTaskRef;
 
 int FreeResourceRef;

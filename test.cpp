@@ -7,10 +7,11 @@
 
 #include "rtos_api.h"
 
+// Тест диспетчера
+//DeclareTask(Task1, 2);
+//DeclareTask(Task2, 3);
+//DeclareTask(Task3, 1);
 
-DeclareTask(Task1, 2);
-DeclareTask(Task2, 3);
-DeclareTask(Task3, 1);
 
 //DeclareTask(Task6, 1);
 //DeclareTask(Task7, 3);
@@ -23,18 +24,25 @@ DeclareTask(Task3, 1);
 //DeclareTask(Task13, 1);
 //DeclareTask(Task14, 3);
 
-DeclareResource(Res1, 5);
-DeclareResource(Res2, 5);
-DeclareResource(Res3, 5);
-DeclareResource(Res4, 2);
+//DeclareResource(Res1, 5);
+//DeclareResource(Res2, 5);
+//DeclareResource(Res3, 5);
+//DeclareResource(Res4, 2);
+//
+//DeclareSysEvent(1);
 
-DeclareSysEvent(1);
+
+// Тест ресурсов
+DeclareTask(Task8, 1);
+DeclareTask(Task9, 3);
+
+DeclareResource(Res5, 4);
 
 int main(void)
 {
 	printf("Hello!\n");
-	char name[] = "Task1";
-	StartOS(Task1, Task1prior, name);
+	char name[] = "Task8";
+	StartOS(Task8, Task8prior, name);
 	
 
 	ShutdownOS();
@@ -42,97 +50,60 @@ int main(void)
 	return 0;
 }
 
-
-TASK(Task1)
-{
-	printf("Start Task1\n");
-	char name[] = "Task2";
-	ActivateTask(Task2, Task2prior, name);
-
-	printf("End Task1\n");
-
-	TerminateTask();
-}
-
-TASK(Task2)
-{
-	printf("Start Task2\n");
-	char name[] = "Task3";
-	ActivateTask(Task3, Task3prior, name);
-
-	printf("End Task2\n");
-
-	TerminateTask();
-}
-
-TASK(Task3)
-{
-	printf("Start Task3\n");
-
-	printf("End Task3\n");
-
-	TerminateTask();
-}
-
-
-
-//TASK(Task6)
+// Тест диспетчера
+//TASK(Task1)
 //{
-//	printf("Start Task6\n");
-//	/* name, который передаем в GetResource и ReleaseResource,
-//	должен быть один и тот же массив (не строка, а именно массив),
-//	так как в ReleaseResource идет сравнение по ссылке на name*/
-//	char name1[] = "Res4";
-//	GetResource(Res4, name1);
-//	ReleaseResource(Res4, name1);
-//	//char name3[] = "Res1";
-//	//GetResource(Res1, name3);
+//	printf("Start Task1\n");
+//	char name[] = "Task2";
+//	ActivateTask(Task2, Task2prior, name);
 //
-//	////ActivateTask(Task7,Task7prior,"Task7");
-//	//char name4[] = "Res1";
-//	//ReleaseResource(Res1, name4);
+//	printf("End Task1\n");
 //
+//	TerminateTask();
+//}
 //
+//TASK(Task2)
+//{
+//	printf("Start Task2\n");
+//	char name[] = "Task3";
+//	ActivateTask(Task3, Task3prior, name);
 //
-//	printf("Task6\n");
+//	printf("End Task2\n");
+//
+//	TerminateTask();
+//}
+//
+//TASK(Task3)
+//{
+//	printf("Start Task3\n");
+//
+//	printf("End Task3\n");
 //
 //	TerminateTask();
 //}
 
-//// 4
-//TASK(Task12)
-//{
-//	printf("Start Task12\n");
-//
-//	char name[] = "Task13";
-//	ActivateTask(Task13, Task13prior, name);
-//	WaitSysEvent(1);
-//
-//	printf("End Task12\n");
-//
-//	TerminateTask();
-//};
-//
-//TASK(Task13)
-//{
-//	printf("Start Task13\n");
-//
-//	char name[] = "Task14";
-//	ActivateTask(Task14, Task14prior, name);
-//
-//	printf("End Task13\n");
-//
-//	TerminateTask();
-//};
-//
-//// 3
-//TASK(Task14)
-//{
-//	printf("Start Task14\n");
-//
-//	SetSysEvent(1);
-//
-//	printf("End Task14\n");
-//
-//	TerminateTask();
-//};
+
+// Тест ресурсов
+TASK(Task8)
+{
+    printf("Start Task8\n");
+    char name[] = "Task9";
+    char name5[] = "Res5";
+    GetResource(Res5, name5);
+    ActivateTask(Task9, Task9prior, name);
+    ReleaseResource(Res5, name5);
+    printf("End Task8\n");
+
+    TerminateTask();
+}
+
+TASK(Task9)
+{
+    printf("Start Task9\n");
+    char name5[] = "Res5";
+    GetResource(Res5, name5);
+    ReleaseResource(Res5, name5);
+    printf("End Task9\n");
+
+    TerminateTask();
+}

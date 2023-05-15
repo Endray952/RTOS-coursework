@@ -60,6 +60,38 @@ void _TerminateTask(void)
 	printf("End of TerminateTask %s\n", TaskQueue[task].name);
 }
 
+void ReSchedule(int task)
+{
+	printf("Reschedule Task %d\n", task);
+
+	if (MostPriorityTaskRef == -1 || TaskCount == 1 || TaskQueue[MostPriorityTaskRef].next == -1)
+	{
+		MostPriorityTaskRef = task;
+		TaskQueue[task].next = -1;
+		return;
+	}
+
+	int currentTask = MostPriorityTaskRef;
+	if (task == currentTask)
+	{
+		MostPriorityTaskRef = TaskQueue[task].next;
+		TaskQueue[task].next = FreeTaskRef;
+		FreeTaskRef = task;
+		return Schedule(task, INSERT_TO_HEAD);
+	}
+
+	// Удаляем таску из расписания
+	while (currentTask != -1 && TaskQueue[currentTask].next != task)
+	{
+		currentTask = TaskQueue[currentTask].next;
+	}
+	
+	TaskQueue[currentTask].next = TaskQueue[task].next;
+
+	// Планируем таску снова с сохранением порядка добавления
+	Schedule(task, INSERT_TO_HEAD);
+}
+
 void Schedule(int task, int mode)
 {
 	int cur, prev;
@@ -134,12 +166,12 @@ void Dispatch()
 			std::cout << "There is no ready tasks!" << std::endl;
 			exit(1);
 		}
-		//std::cout << TaskQueue[nextReadyTask].name;
-		//std::cout << TaskQueue[nextReadyTask].entry;
+		
 		if (TaskQueue[nextReadyTask].entry != nullptr)
 		{
-			//std::cout << "Dura!";
+			RunningTaskRef = nextReadyTask;
 			(*TaskQueue[nextReadyTask].entry)();
+			RunningTaskRef = -1;
 		}
 	}
 }

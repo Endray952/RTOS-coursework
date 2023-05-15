@@ -46,8 +46,11 @@ extern int TaskCount;
 
 extern TResource ResourceQueue[MAX_RES];
 
-/*Таска, которая выполняется сейчас*/
+// Таска, которая имеет наивычший сейчас
 extern int MostPriorityTaskRef;
+
+// Таска, которая исполняется в данный момент
+extern int RunningTaskRef;
 
 /* Указатель на голову списка свободных элементов
 массива TaskQueue (индекс массива TaskQueue)*/
@@ -56,6 +59,7 @@ extern int FreeTaskRef;
 extern int FreeResourceRef;
 
 void Schedule(int task, int mode);
+void ReSchedule(int task);
 
 void Dispatch();
 //void EventSystemDispatch(int task);
