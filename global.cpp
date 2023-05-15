@@ -9,10 +9,12 @@ TTask TaskQueue[MAX_TASK];
 
 TResource ResourceQueue[MAX_RES];
 
-int RunningTask;
+int RunningTaskRef;
 
-int FreeTask;
+int FreeTaskRef;
 
-int FreeResource;
+int FreeResourceRef;
 
 TEventMask WorkingEvents;
+
+int TaskCount = 0;

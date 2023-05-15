@@ -8,20 +8,20 @@
 
 int StartOS(TTaskCall entry, int priority, char* name)
 {
-	// В начале нет работающих тасок, 
-	RunningTask = -1;
-	FreeTask = 0;
+	// В начале нет работающих тасок
+	RunningTaskRef = -1;
+	FreeTaskRef = 0;
 
-	FreeResource = 0;
+	FreeResourceRef = 0;
 
 	printf("StartOS!\n");
 
 	// Инициализация очереди тасок
 	for (int i = 0; i < MAX_TASK; i++)
 	{
-		TaskQueue[i].ref = i + 1;
+		TaskQueue[i].next = i + 1;
 	}
-	TaskQueue[MAX_TASK - 1].ref = -1;
+	TaskQueue[MAX_TASK - 1].next = 0;
 
 	// Инициализация очереди ресурсов
 	for (int i = 0; i < MAX_RES; i++)
@@ -31,8 +31,8 @@ int StartOS(TTaskCall entry, int priority, char* name)
 	}
 	ResourceQueue[MAX_RES - 1].priority = -1;
 
-
-	ActivateTask(entry, priority, name);
+	_ActivateTask(entry, priority, name);
+	Dispatch();
 
 	return 0;
 }

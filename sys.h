@@ -10,11 +10,10 @@
 enum TTaskState {
 	TASK_RUNNING,
 	TASK_READY,
-	TASK_SUSPENDED,
 	TASK_WAITING
 };
 
-extern TEventMask WorkingEvents; //сработавшие события (не мой комментарий)
+extern TEventMask WorkingEvents; // сработавшие события (не мой комментарий)
 
 
 #define INSERT_TO_TAIL 1
@@ -22,10 +21,10 @@ extern TEventMask WorkingEvents; //сработавшие события (не мой комментарий)
 
 typedef struct Type_Task
 {
-	int ref;
+	int next;
 	int priority;
 	int ceiling_priority;
-	void (*entry)(void);
+	TTaskCall entry;
 	char* name;
 	TTaskState task_state;
 	TEventMask waiting_events;
@@ -43,19 +42,20 @@ typedef struct Type_resource
 } TResource;
 
 extern TTask TaskQueue[MAX_TASK];
+extern int TaskCount;
 
 extern TResource ResourceQueue[MAX_RES];
 
 /*Таска, которая выполняется сейчас*/
-extern int RunningTask;
+extern int RunningTaskRef;
 
 /* Указатель на голову списка свободных элементов
 массива TaskQueue (индекс массива TaskQueue)*/
-extern int FreeTask;
+extern int FreeTaskRef;
 
-extern int FreeResource;
+extern int FreeResourceRef;
 
 void Schedule(int task, int mode);
 
-void Dispatch(int task);
+void Dispatch();
 void EventSystemDispatch(int task);

@@ -11,19 +11,19 @@ void GetResource(int priority, char* name)
 	printf("GetResource %s\n", name);
 	/* Указатель на голову списка свободных ресурсов*/
 	int free_occupy;
-	free_occupy = FreeResource;
+	free_occupy = FreeResourceRef;
 	
 	/* Ставим в FreeResource индекс следующего свободного ресурса*/
-	FreeResource = ResourceQueue[FreeResource].priority;
+	FreeResourceRef = ResourceQueue[FreeResourceRef].priority;
 
 	ResourceQueue[free_occupy].priority = priority;
-	ResourceQueue[free_occupy].task = RunningTask;
+	ResourceQueue[free_occupy].task = RunningTaskRef;
 	ResourceQueue[free_occupy].name = name;
 
 	/* Выставляем наивысший приоритет таске, захватившей ресурс*/
-	if (TaskQueue[RunningTask].ceiling_priority < priority)
+	if (TaskQueue[RunningTaskRef].ceiling_priority < priority)
 	{
-		TaskQueue[RunningTask].ceiling_priority = priority;
+		TaskQueue[RunningTaskRef].ceiling_priority = priority;
 	}
 
 }
@@ -36,19 +36,19 @@ void ReleaseResource(int priority, char* name)
 
 	printf("ReleaseResource %s\n", name);
 
-	if (TaskQueue[RunningTask].ceiling_priority == priority)
+	if (TaskQueue[RunningTaskRef].ceiling_priority == priority)
 	{
 		int res_priority, task_priority;
 		int our_task;
 
-		our_task = RunningTask;
+		our_task = RunningTaskRef;
 		/* task_priority мб больше, чем priority - если брали ресурс внутри другого более приоритетного ресурса*/
-		task_priority = TaskQueue[RunningTask].priority;
+		task_priority = TaskQueue[RunningTaskRef].priority;
 
 		for (int i = 0; i < MAX_RES; i++)
 		{
 			// находим индекс ресурса в списке ресурсов, который захвачет текущей таской
-			if (ResourceQueue[i].task != RunningTask) continue;
+			if (ResourceQueue[i].task != RunningTaskRef) continue;
 
 			res_priority = ResourceQueue[i].priority;
 
@@ -64,26 +64,26 @@ void ReleaseResource(int priority, char* name)
 		1. приоритет таски, если захватили ресурс НЕ внутри других ресурсов, то есть не было вложенных захватов ресурсов
 		2. самый большой приоритет одного из ресурсов, захваченных текущей таской
 		*/
-		TaskQueue[RunningTask].ceiling_priority = task_priority;
+		TaskQueue[RunningTaskRef].ceiling_priority = task_priority;
 
 		/* После завершения захвата ресурса наша таска либо не поменяла приоритет, либо его уменьшила,
 		поэтому надо провести перепланировку. Для этого RunningTask поставим следующую по приоритету таску,
 		а our_task отправим в Schedule в качестве новой таски*/
-		RunningTask = TaskQueue[RunningTask].ref;
+		RunningTaskRef = TaskQueue[RunningTaskRef].next;
 
 		/* INSERT_TO_HEAD - значит наша таска будет самой "приоритетной" из тасок такого же приоритета*/
 		Schedule(our_task, INSERT_TO_HEAD);
 
 		/* Элемент массива ResourceQueue, который занимал захваченный ресурс, теперь свободная ячейка*/ 
-		ResourceQueue[ResourceIndex].priority = FreeResource;
+		ResourceQueue[ResourceIndex].priority = FreeResourceRef;
 		ResourceQueue[ResourceIndex].task = -1;
-		FreeResource = ResourceIndex;
+		FreeResourceRef = ResourceIndex;
 
 		/* Если в результаты планирования наша таска оказалась менее приоритетной*/
-		if (our_task != RunningTask)
+		/*if (our_task != RunningTaskRef)
 		{
 			Dispatch(our_task);
-		}
+		}*/
 
 	}
 	/* Если ceiling_priority > prioprity, то это значит, что
@@ -93,7 +93,7 @@ void ReleaseResource(int priority, char* name)
 	{
 		ResourceIndex = 0;
 		/* Находим индекс текущего ресурса в массиве ресурсов*/
-		while (ResourceQueue[ResourceIndex].task != RunningTask ||
+		while (ResourceQueue[ResourceIndex].task != RunningTaskRef ||
 			ResourceQueue[ResourceIndex].priority != priority ||
 			ResourceQueue[ResourceIndex].name != name)
 		{
@@ -101,9 +101,9 @@ void ReleaseResource(int priority, char* name)
 		}
 
 		/* Добавляем элемент массива, занимаемый ресурсом, в список свободных ресурсов*/
-		ResourceQueue[ResourceIndex].priority = FreeResource;
+		ResourceQueue[ResourceIndex].priority = FreeResourceRef;
 		ResourceQueue[ResourceIndex].task = -1;
-		FreeResource = ResourceIndex;
+		FreeResourceRef = ResourceIndex;
 
 	}
 }

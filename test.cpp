@@ -8,20 +8,20 @@
 #include "rtos_api.h"
 
 
-DeclareTask(Task1, 3);
-DeclareTask(Task2, 2);
+DeclareTask(Task1, 2);
+DeclareTask(Task2, 3);
 DeclareTask(Task3, 1);
 
-DeclareTask(Task6, 1);
-DeclareTask(Task7, 3);
-DeclareTask(Task8, 5);
-DeclareTask(Task9, 7);
-DeclareTask(Task10, 2);
-DeclareTask(Task11, 4);
+//DeclareTask(Task6, 1);
+//DeclareTask(Task7, 3);
+//DeclareTask(Task8, 5);
+//DeclareTask(Task9, 7);
+//DeclareTask(Task10, 2);
+//DeclareTask(Task11, 4);
 
-DeclareTask(Task12, 4);
-DeclareTask(Task13, 1);
-DeclareTask(Task14, 3);
+//DeclareTask(Task12, 4);
+//DeclareTask(Task13, 1);
+//DeclareTask(Task14, 3);
 
 DeclareResource(Res1, 5);
 DeclareResource(Res2, 5);
@@ -33,10 +33,9 @@ DeclareSysEvent(1);
 int main(void)
 {
 	printf("Hello!\n");
-	char name[] = "Task12";
-	StartOS(Task12, Task12prior, name);
-	//char name[] = "Task6";
-		//StartOS(Task6, Task6prior, name);
+	char name[] = "Task1";
+	StartOS(Task1, Task1prior, name);
+	
 
 	ShutdownOS();
 
@@ -80,63 +79,63 @@ TASK(Task3)
 
 
 
-TASK(Task6)
-{
-	printf("Start Task6\n");
-	/* name, который передаем в GetResource и ReleaseResource,
-	должен быть один и тот же массив (не строка, а именно массив),
-	так как в ReleaseResource идет сравнение по ссылке на name*/
-	char name1[] = "Res4";
-	GetResource(Res4, name1);
-	ReleaseResource(Res4, name1);
-	//char name3[] = "Res1";
-	//GetResource(Res1, name3);
+//TASK(Task6)
+//{
+//	printf("Start Task6\n");
+//	/* name, который передаем в GetResource и ReleaseResource,
+//	должен быть один и тот же массив (не строка, а именно массив),
+//	так как в ReleaseResource идет сравнение по ссылке на name*/
+//	char name1[] = "Res4";
+//	GetResource(Res4, name1);
+//	ReleaseResource(Res4, name1);
+//	//char name3[] = "Res1";
+//	//GetResource(Res1, name3);
+//
+//	////ActivateTask(Task7,Task7prior,"Task7");
+//	//char name4[] = "Res1";
+//	//ReleaseResource(Res1, name4);
+//
+//
+//
+//	printf("Task6\n");
+//
+//	TerminateTask();
+//}
 
-	////ActivateTask(Task7,Task7prior,"Task7");
-	//char name4[] = "Res1";
-	//ReleaseResource(Res1, name4);
-
-
-
-	printf("Task6\n");
-
-	TerminateTask();
-}
-
-// 4
-TASK(Task12)
-{
-	printf("Start Task12\n");
-
-	char name[] = "Task13";
-	ActivateTask(Task13, Task13prior, name);
-	WaitSysEvent(1);
-
-	printf("End Task12\n");
-
-	TerminateTask();
-}
-
-TASK(Task13)
-{
-	printf("Start Task13\n");
-
-	char name[] = "Task14";
-	ActivateTask(Task14, Task14prior, name);
-
-	printf("End Task13\n");
-
-	TerminateTask();
-}
-
-// 3
-TASK(Task14)
-{
-	printf("Start Task14\n");
-
-	SetSysEvent(1);
-
-	printf("End Task14\n");
-
-	TerminateTask();
-}
+//// 4
+//TASK(Task12)
+//{
+//	printf("Start Task12\n");
+//
+//	char name[] = "Task13";
+//	ActivateTask(Task13, Task13prior, name);
+//	WaitSysEvent(1);
+//
+//	printf("End Task12\n");
+//
+//	TerminateTask();
+//};
+//
+//TASK(Task13)
+//{
+//	printf("Start Task13\n");
+//
+//	char name[] = "Task14";
+//	ActivateTask(Task14, Task14prior, name);
+//
+//	printf("End Task13\n");
+//
+//	TerminateTask();
+//};
+//
+//// 3
+//TASK(Task14)
+//{
+//	printf("Start Task14\n");
+//
+//	SetSysEvent(1);
+//
+//	printf("End Task14\n");
+//
+//	TerminateTask();
+//};

@@ -7,70 +7,61 @@
 #include "rtos_api.h"
 #include <stdlib.h>
 
-void ActivateTask(TTaskCall entry, int priority, char* name)
+void _ActivateTask(TTaskCall entry, int priority, char* name)
 {
-	/*Запоминанем сюда таску до вызова планировщика*/
-	int task;
-	/*Сюда записываем индекс бошки массива TaskQueue,
-	чтобы туда сунуть новую таску*/
+	/* Сюда записываем индекс бошки массива TaskQueue,
+	чтобы туда сунуть новую таску */
 	int	occupy;
 
 	printf("ActivateTask %s\n", name);
 
-	task = RunningTask;
-
-	/*По индексу FreeTask ставим в TaskQueue новую таску,*/
-	occupy = FreeTask;
-	/* а в FreeTask устанавливаем новый индекс головы списка свободных элементов*/
-	FreeTask = TaskQueue[occupy].ref;
+	// По индексу FreeTask ставим в TaskQueue новую таску
+	occupy = FreeTaskRef;
+	// а в FreeTask устанавливаем новый индекс головы списка свободных элементов
+	FreeTaskRef = TaskQueue[occupy].next;
+	TaskQueue[occupy].next = -1;
 
 	TaskQueue[occupy].priority = priority;
 	TaskQueue[occupy].ceiling_priority = priority;
 	TaskQueue[occupy].name = name;
 	TaskQueue[occupy].entry = entry;
+	TaskQueue[occupy].task_state = TASK_READY;
+
+	TaskCount++;
 
 	Schedule(occupy, INSERT_TO_TAIL);
 
-	/* Вызов диспетчера может не понадобиться,
-	если текущую таску (task) не сместила новая таска
-	(функция Schedle может поставить новую таску в RunningTask)*/
-	if (task != RunningTask)
-	{
-		Dispatch(task);
-	}
-
 	printf("End of ActivateTask %s\n", name);
-
 }
 
-void TerminateTask(void)
+void _TerminateTask(void)
 {
 	int task;
 
-	task = RunningTask;
+	task = RunningTaskRef;
 
 	printf("TerminateTask %s\n", TaskQueue[task].name);
 
-	/*Берем в качестве текущей таски первую из очереди*/
-	RunningTask = TaskQueue[task].ref;
+	RunningTaskRef = TaskQueue[task].next;
 
-	TaskQueue[task].ref = FreeTask;
+	TaskQueue[task].next = FreeTaskRef;
 
-	FreeTask = task;
+	FreeTaskRef = task;
+
+	TaskCount--;
 
 	printf("End of TerminateTask %s\n", TaskQueue[task].name);
-
 }
 
 void Schedule(int task, int mode)
 {
 	int cur, prev;
-	/* Наивысший приоритет входящей таски (task)*/
+	// Наивысший приоритет входящей таски (task)
 	int priority;
 
 	printf("Schedule %s\n", TaskQueue[task].name);
 
-	cur = RunningTask;
+	cur = RunningTaskRef;
 	prev = -1;
 
 	priority = TaskQueue[task].ceiling_priority;
@@ -82,7 +73,7 @@ void Schedule(int task, int mode)
 	while (cur != -1 && TaskQueue[cur].ceiling_priority > priority)
 	{
 		prev = cur;
-		cur = TaskQueue[cur].ref;
+		cur = TaskQueue[cur].next;
 	}
 
 	if (mode == INSERT_TO_TAIL)
@@ -90,66 +81,72 @@ void Schedule(int task, int mode)
 		while (cur != -1 && TaskQueue[cur].ceiling_priority == priority)
 		{
 			prev = cur;
-			cur = TaskQueue[cur].ref;
+			cur = TaskQueue[cur].next;
 		}
 	}
 
-	TaskQueue[task].ref = cur;
+	TaskQueue[task].next = cur;
 
 	// prev == -1 значит новая таска самая приоритетная
-	if (prev == -1) RunningTask = task;
-	else TaskQueue[prev].ref = task;
+	if (prev != -1) TaskQueue[prev].next = task;
 
 	printf("End of Schedule %s\n", TaskQueue[task].name);
 }
 
-void Dispatch(int task)
+void Dispatch()
 {
-	// task - вытесненная таска
-	printf("Dispatch\n");
-
-	do
+	while (TaskCount != 0)
 	{
-		TaskQueue[RunningTask].entry();
-	} while (RunningTask != task);
-	// вернулись к выполнению вытесненной таски
-	printf("End of Dispatch\n");
-}
-
-void EventSystemDispatch(int task)
-{
-	printf("Event dispatch\n");
-
-	int nextTask = RunningTask;
-	while ((nextTask != -1) && (TaskQueue[nextTask].task_state == TASK_WAITING))
-	{
-		nextTask = TaskQueue[nextTask].ref;
-	}
-
-	if (nextTask == -1)
-	{
-		printf("Error: all task in waiting state");
-		return;
-	}
-
-	int tmp = nextTask;
-	while (TaskQueue[task].task_state == TASK_WAITING)
-	{
-		if (nextTask != -1)
+		int nextReadyTask = RunningTaskRef;
+		while (nextReadyTask != -1)
 		{
-			if (TaskQueue[nextTask].task_state == TASK_WAITING)
+			if (TaskQueue[nextReadyTask].task_state == TASK_READY)
 			{
-				nextTask = TaskQueue[nextTask].ref;
-				continue;
+				break;
 			}
-			tmp = nextTask;
-			nextTask = TaskQueue[tmp].ref;
-			TaskQueue[tmp].entry();
+			else
+			{
+				nextReadyTask = TaskQueue[nextReadyTask].next;
+			}
 		}
-		else
-		{
-			printf("Error: there is no running tasks, while task %d is waiting", task);
-			exit(1);
-		}
+		(*TaskQueue[nextReadyTask].entry)();
 	}
 }
+
+//void EventSystemDispatch(int task)
+//{
+//	printf("Event dispatch\n");
+//
+//	int nextTask = RunningTaskRef;
+//	while ((nextTask != -1) && (TaskQueue[nextTask].task_state == TASK_WAITING))
+//	{
+//		nextTask = TaskQueue[nextTask].next;
+//	}
+//
+//	if (nextTask == -1)
+//	{
+//		printf("Error: all task in waiting state");
+//		return;
+//	}
+//
+//	int tmp = nextTask;
+//	while (TaskQueue[task].task_state == TASK_WAITING)
+//	{
+//		if (nextTask != -1)
+//		{
+//			if (TaskQueue[nextTask].task_state == TASK_WAITING)
+//			{
+//				nextTask = TaskQueue[nextTask].next;
+//				continue;
+//			}
+//			tmp = nextTask;
+//			nextTask = TaskQueue[tmp].next;
+//			TaskQueue[tmp].entry();
+//		}
+//		else
+//		{
+//			printf("Error: there is no running tasks, while task %d is waiting", task);
+//			exit(1);
+//		}
+//	}
+//}
