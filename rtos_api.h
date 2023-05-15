@@ -52,6 +52,10 @@ void _ReleaseResource(int priority, char* name);
 typedef unsigned int TEventMask;
 #define DeclareSysEvent(Id) TEventMask Event_##Id = (Id)*(Id);
 
+#define WaitSysEvent(mask) \
+	_WaitSysEvent(mask); \
+	yield();
+
 void SetSysEvent(TEventMask mask);
 void GetSysEvent(TEventMask* mask);
-void WaitSysEvent(TEventMask mask);
+void _WaitSysEvent(TEventMask mask);

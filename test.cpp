@@ -13,36 +13,26 @@
 //DeclareTask(Task3, 1);
 
 
-//DeclareTask(Task6, 1);
-//DeclareTask(Task7, 3);
-//DeclareTask(Task8, 5);
-//DeclareTask(Task9, 7);
-//DeclareTask(Task10, 2);
-//DeclareTask(Task11, 4);
-
-//DeclareTask(Task12, 4);
-//DeclareTask(Task13, 1);
-//DeclareTask(Task14, 3);
-
-//DeclareResource(Res1, 5);
-//DeclareResource(Res2, 5);
-//DeclareResource(Res3, 5);
-//DeclareResource(Res4, 2);
-//
-//DeclareSysEvent(1);
-
-
 // Тест ресурсов
-DeclareTask(Task8, 1);
-DeclareTask(Task9, 3);
+//DeclareTask(Task4, 1);
+//DeclareTask(Task5, 3);
+//
+//DeclareResource(Res1, 4);
 
-DeclareResource(Res5, 4);
+
+// Тест событий
+DeclareTask(Task6, 3);
+DeclareTask(Task7, 1);
+DeclareTask(Task8, 2);
+
+DeclareSysEvent(1);
+
 
 int main(void)
 {
 	printf("Hello!\n");
-	char name[] = "Task8";
-	StartOS(Task8, Task8prior, name);
+	char name[] = "Task6";
+	StartOS(Task6, Task6prior, name);
 	
 
 	ShutdownOS();
@@ -84,26 +74,58 @@ int main(void)
 
 
 // Тест ресурсов
-TASK(Task8)
+//TASK(Task4)
+//{
+//    printf("Start Task4\n");
+//    char name[] = "Task5";
+//    char name1[] = "Res1";
+//    GetResource(Res1, name1);
+//    ActivateTask(Task5, Task5prior, name);
+//    ReleaseResource(Res1, name1);
+//    printf("End Task4\n");
+//
+//    TerminateTask();
+//}
+//
+//TASK(Task5)
+//{
+//    printf("Start Task5\n");
+//    char name1[] = "Res1";
+//    GetResource(Res5, name1);
+//    ReleaseResource(Res1, name1);
+//    printf("End Task5\n");
+//
+//    TerminateTask();
+//}
+
+
+// Тест событий
+TASK(Task6)
 {
-    printf("Start Task8\n");
-    char name[] = "Task9";
-    char name5[] = "Res5";
-    GetResource(Res5, name5);
-    ActivateTask(Task9, Task9prior, name);
-    ReleaseResource(Res5, name5);
-    printf("End Task8\n");
+    printf("Start Task6\n");
+	char name[] = "Task7";
+	ActivateTask(Task7, Task7prior, name);
+	WaitSysEvent(1);
+	printf("End Task6\n");
 
     TerminateTask();
 }
 
-TASK(Task9)
+TASK(Task7)
 {
-    printf("Start Task9\n");
-    char name5[] = "Res5";
-    GetResource(Res5, name5);
-    ReleaseResource(Res5, name5);
-    printf("End Task9\n");
+	printf("Start Task7\n");
+	char name[] = "Task8";
+	ActivateTask(Task8, Task8prior, name);
+	printf("End Task7\n");
 
-    TerminateTask();
+	TerminateTask();
+}
+
+TASK(Task8)
+{
+	printf("Start Task8\n");
+	SetSysEvent(1);
+	printf("End Task8\n");
+
+	TerminateTask();
 }

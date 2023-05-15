@@ -44,12 +44,25 @@ void _TerminateTask(void)
 {
 	int task;
 
-	task = MostPriorityTaskRef;
+	task = RunningTaskRef;
 
 	printf("TerminateTask %s\n", TaskQueue[task].name);
 
-	MostPriorityTaskRef = TaskQueue[task].next;
+	if (RunningTaskRef == MostPriorityTaskRef)
+	{
+		MostPriorityTaskRef = TaskQueue[task].next;
+	}
 
+	if (TaskCount > 1)
+	{
+		int currentTask = MostPriorityTaskRef;
+		while (currentTask != -1 && TaskQueue[currentTask].next != task)
+		{
+			currentTask = TaskQueue[currentTask].next;
+		}
+		TaskQueue[currentTask].next = TaskQueue[task].next;
+	}
+	
 	TaskQueue[task].next = FreeTaskRef;
 
 	FreeTaskRef = task;
@@ -175,41 +188,3 @@ void Dispatch()
 		}
 	}
 }
-
-//void EventSystemDispatch(int task)
-//{
-//	printf("Event dispatch\n");
-//
-//	int nextTask = RunningTaskRef;
-//	while ((nextTask != -1) && (TaskQueue[nextTask].task_state == TASK_WAITING))
-//	{
-//		nextTask = TaskQueue[nextTask].next;
-//	}
-//
-//	if (nextTask == -1)
-//	{
-//		printf("Error: all task in waiting state");
-//		return;
-//	}
-//
-//	int tmp = nextTask;
-//	while (TaskQueue[task].task_state == TASK_WAITING)
-//	{
-//		if (nextTask != -1)
-//		{
-//			if (TaskQueue[nextTask].task_state == TASK_WAITING)
-//			{
-//				nextTask = TaskQueue[nextTask].next;
-//				continue;
-//			}
-//			tmp = nextTask;
-//			nextTask = TaskQueue[tmp].next;
-//			TaskQueue[tmp].entry();
-//		}
-//		else
-//		{
-//			printf("Error: there is no running tasks, while task %d is waiting", task);
-//			exit(1);
-//		}
-//	}
-//}

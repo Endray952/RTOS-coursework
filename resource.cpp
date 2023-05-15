@@ -9,7 +9,7 @@
 
 void _GetResource(int priority, char* name)
 {
-	printf("GetResource %s by Task %d\n", name, RunningTaskRef);
+	printf("GetResource %s by Task %s\n", name, TaskQueue[RunningTaskRef].name);
 	// ”казатель на голову списка свободных ресурсов
 	int free_occupy;
 	free_occupy = FreeResourceRef;
@@ -36,7 +36,7 @@ void _ReleaseResource(int priority, char* name)
 
 	int ResourceIndex;
 
-	printf("ReleaseResource %s by Task %d\n", name, RunningTaskRef);
+	printf("ReleaseResource %s by Task %s\n", name, TaskQueue[RunningTaskRef].name);
 
 	if (TaskQueue[RunningTaskRef].ceiling_priority == priority)
 	{
