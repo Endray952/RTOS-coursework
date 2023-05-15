@@ -6,18 +6,15 @@
 
 /* TASK */
 #define DeclareTask(TaskID, priority)\
-	_TASK(TaskID);					\
-	boost::coroutines2::coroutine<void>::pull_type C_##TaskID (_##TaskID); \
-	boost::coroutines2::coroutine<void>::pull_type* TaskID = &(C_##TaskID); \
+	TASK(TaskID);					\
 enum {TaskID##prior=priority}
 
-#define _TASK(TaskID) void _##TaskID(boost::coroutines2::coroutine<void>::push_type& yield);
-
 #define TASK(TaskID) \
-	void _##TaskID(boost::coroutines2::coroutine<void>::push_type& yield)
+	void TaskID(boost::coroutines2::coroutine<void>::pull_type& yield)
 
 
-typedef boost::coroutines2::coroutine<void>::pull_type* TTaskCall;
+typedef boost::coroutines2::coroutine<void>::push_type* TTaskCallCoroutine;
+typedef void TTaskCall(boost::coroutines2::coroutine<void>::pull_type&);
 
 #define ActivateTask(entry, priority, name) \
 	_ActivateTask(entry, priority, name); \

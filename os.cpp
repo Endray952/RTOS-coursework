@@ -9,7 +9,7 @@
 int StartOS(TTaskCall entry, int priority, char* name)
 {
 	// В начале нет работающих тасок
-	RunningTaskRef = -1;
+	MostPriorityTaskRef = -1;
 	FreeTaskRef = 0;
 
 	FreeResourceRef = 0;

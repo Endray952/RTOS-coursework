@@ -9,7 +9,7 @@ TTask TaskQueue[MAX_TASK];
 
 TResource ResourceQueue[MAX_RES];
 
-int RunningTaskRef;
+int MostPriorityTaskRef;
 
 int FreeTaskRef;
 

@@ -24,7 +24,7 @@ typedef struct Type_Task
 	int next;
 	int priority;
 	int ceiling_priority;
-	TTaskCall entry;
+	TTaskCallCoroutine entry;
 	char* name;
 	TTaskState task_state;
 	TEventMask waiting_events;
@@ -47,7 +47,7 @@ extern int TaskCount;
 extern TResource ResourceQueue[MAX_RES];
 
 /*Таска, которая выполняется сейчас*/
-extern int RunningTaskRef;
+extern int MostPriorityTaskRef;
 
 /* Указатель на голову списка свободных элементов
 массива TaskQueue (индекс массива TaskQueue)*/
@@ -58,4 +58,4 @@ extern int FreeResourceRef;
 void Schedule(int task, int mode);
 
 void Dispatch();
-void EventSystemDispatch(int task);
+//void EventSystemDispatch(int task);

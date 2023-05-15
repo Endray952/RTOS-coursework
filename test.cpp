@@ -69,9 +69,6 @@ TASK(Task3)
 {
 	printf("Start Task3\n");
 
-	//char name[] = "Task6";
-	//ActivateTask(Task6, Task6prior, name);
-
 	printf("End Task3\n");
 
 	TerminateTask();

@@ -2,6 +2,7 @@
 /*          task.c               */
 /*********************************/
 #include <stdio.h>
+#include <iostream>
 
 #include "sys.h"
 #include "rtos_api.h"
@@ -17,6 +18,7 @@ void _ActivateTask(TTaskCall entry, int priority, char* name)
 
 	// По индексу FreeTask ставим в TaskQueue новую таску
 	occupy = FreeTaskRef;
+
 	// а в FreeTask устанавливаем новый индекс головы списка свободных элементов
 	FreeTaskRef = TaskQueue[occupy].next;
 	TaskQueue[occupy].next = -1;
@@ -24,7 +26,11 @@ void _ActivateTask(TTaskCall entry, int priority, char* name)
 	TaskQueue[occupy].priority = priority;
 	TaskQueue[occupy].ceiling_priority = priority;
 	TaskQueue[occupy].name = name;
-	TaskQueue[occupy].entry = entry;
+
+	boost::coroutines2::coroutine<void>::push_type* coroutineEntry = nullptr;
+	coroutineEntry = new boost::coroutines2::coroutine<void>::push_type(entry);
+
+	TaskQueue[occupy].entry = coroutineEntry;
 	TaskQueue[occupy].task_state = TASK_READY;
 
 	TaskCount++;
@@ -38,15 +44,16 @@ void _TerminateTask(void)
 {
 	int task;
 
-	task = RunningTaskRef;
+	task = MostPriorityTaskRef;
 
 	printf("TerminateTask %s\n", TaskQueue[task].name);
 
-	RunningTaskRef = TaskQueue[task].next;
+	MostPriorityTaskRef = TaskQueue[task].next;
 
 	TaskQueue[task].next = FreeTaskRef;
 
 	FreeTaskRef = task;
+	delete TaskQueue[task].entry;
 
 	TaskCount--;
 
@@ -61,7 +68,7 @@ void Schedule(int task, int mode)
 
 	printf("Schedule %s\n", TaskQueue[task].name);
 
-	cur = RunningTaskRef;
+	cur = MostPriorityTaskRef;
 	prev = -1;
 
 	priority = TaskQueue[task].ceiling_priority;
@@ -87,8 +94,20 @@ void Schedule(int task, int mode)
 
 	TaskQueue[task].next = cur;
 
+	if (MostPriorityTaskRef == -1)
+	{
+		MostPriorityTaskRef = task;
+	}
+
 	// prev == -1 значит новая таска самая приоритетная
-	if (prev != -1) TaskQueue[prev].next = task;
+	if (prev != -1)
+	{
+		TaskQueue[prev].next = task;
+	}
+	else
+	{
+		MostPriorityTaskRef = task;
+	}
 
 	printf("End of Schedule %s\n", TaskQueue[task].name);
 }
@@ -97,7 +116,7 @@ void Dispatch()
 {
 	while (TaskCount != 0)
 	{
-		int nextReadyTask = RunningTaskRef;
+		int nextReadyTask = MostPriorityTaskRef;
 		while (nextReadyTask != -1)
 		{
 			if (TaskQueue[nextReadyTask].task_state == TASK_READY)
@@ -109,7 +128,19 @@ void Dispatch()
 				nextReadyTask = TaskQueue[nextReadyTask].next;
 			}
 		}
-		(*TaskQueue[nextReadyTask].entry)();
+		
+		if (nextReadyTask == -1)
+		{
+			std::cout << "There is no ready tasks!" << std::endl;
+			exit(1);
+		}
+		//std::cout << TaskQueue[nextReadyTask].name;
+		//std::cout << TaskQueue[nextReadyTask].entry;
+		if (TaskQueue[nextReadyTask].entry != nullptr)
+		{
+			//std::cout << "Dura!";
+			(*TaskQueue[nextReadyTask].entry)();
+		}
 	}
 }
 
